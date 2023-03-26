@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Test.gd" type="Script" id=1]
+[ext_resource path="res://CameraRing.gd" type="Script" id=2]
+[ext_resource path="res://Terrain.gd" type="Script" id=3]
+[ext_resource path="res://SpereMesh.gd" type="Script" id=4]
+
+[node name="Test" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="CameraRing" type="Spatial" parent="."]
+transform = Transform( -0.853114, 0, -0.521725, 0, 1, 0, 0.521725, 0, -0.853114, 0, 1.61294, 0 )
+script = ExtResource( 2 )
+
+[node name="Camera" type="Camera" parent="CameraRing"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.216865, 0 )
+fov = 75.7142
+
+[node name="Terrain" type="MeshInstance" parent="."]
+script = ExtResource( 3 )
+
+[node name="SpereMesh" type="MeshInstance" parent="."]
+script = ExtResource( 4 )

@@ -1,0 +1,3 @@
+[gd_scene format=2]
+
+[node name="Procedural_part_of_gun" type="Spatial"]
