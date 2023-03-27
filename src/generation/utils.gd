@@ -1,24 +1,26 @@
 
 func test():
-	generateQuarterSphereMesh(10,10)
+	generateQuarterSphereMesh(15,12)
 	pass
 
 func generateQuarterSphereMesh(radius,detail):
 	# var circularDiameter = PI/2
 	var totalDegrees = 90
-	var degreeSteps = totalDegrees/detail
-
-	print(degreeSteps*detail," shuld be ",totalDegrees)
+	var degreeSteps = float(totalDegrees) / detail
+	print(degreeSteps,"degreeSteps")
+	print(degreeSteps * detail," shuld be ",totalDegrees)
 
 	var points = []
-
+	var ringsDetailsArray = []
 	for ringY in range(detail):
 		var totalDegreesForY = degreeSteps * ringY
 		var y = radius * sin(deg2rad(totalDegreesForY))
 		var ringDiameter = radius * cos(deg2rad(totalDegreesForY))
 		
 		var ringDetail = round(cos(deg2rad(totalDegreesForY)) * detail)
-		var degreeStepsNew = totalDegrees/ringDetail
+		var degreeStepsNew = float(totalDegrees)/ringDetail
+		# print(degreeStepsNew," shuld be float or ",(totalDegrees / ringDetail), " or the float shuld be", (float(totalDegrees)/ringDetail)  )
+		ringsDetailsArray.append(ringDetail)
 		print(ringDetail," -ringDetail")
 		for i in range(ringDetail+1):
 			var totalDegreesIn = degreeStepsNew * i
@@ -26,6 +28,13 @@ func generateQuarterSphereMesh(radius,detail):
 			var z = ringDiameter * sin(deg2rad((totalDegreesIn)))
 			points.append(Vector3(x,y,z))
 	
+
+
+	for i in range(ringsDetailsArray.size()):
+		var actualRing = ringsDetailsArray[i]
+
+		
+
 	print(points)
 
 
