@@ -96,6 +96,7 @@ func generateQuarterSphereMesh(radius,detail):
 				var pointA = actualPointIndex
 				print(pointA)
 				var pointB = pointA + actualRingSize
+				lastIndexes.append(pointA)
 				if (lastIndexes.size() >= 3):
 					var lastPoint = lastIndexes[lastIndexes.size()-1]
 					var secondLastPoint = lastIndexes[lastIndexes.size()-2]
@@ -121,60 +122,11 @@ func generateQuarterSphereMesh(radius,detail):
 
 		indexesArray.append_array(ringIndexesArray)
 	print(indexesArray)
-
+	print(indexesArray)
 	return createMeshInstance(points,indexesArray)
 
 
 	# print(points)
-
-
-func generateSphereMesh(size,detail):
-	# try that size be a pair number
-	# or make it one
-
-	# example
-	# size = 30
-	# detail = 20
-	# var rings = detail
-	var radius = size/2
-
-	var poleUp = Vector3(0,radius,0)
-	var poleDawn = Vector3(0,-radius,0)
-	var stepsByQuarter = detail/4
-	var ringStepDistance = (PI/4) / stepsByQuarter
-
-	print(cos(0))
-	print(sin(0))
-
-
-	var firstCuarter = []
-
-	for ring in range(1,stepsByQuarter+1):
-
-		var ringAngle = ring * ringStepDistance
-		var ringDiameter = cos((ringAngle))
-		var y = sin((ringAngle))
-		var stepsByRing = stepsByQuarter * ringDiameter
-		print(stepsByQuarter," -stepsByQuarter")
-		print(ringDiameter," -ringDiameter")
-		print(stepsByRing," -stepsByRing")
-		var stepDistance = (PI/4) / stepsByRing
-		for step in range(1,stepsByRing+1):
-			var stepAngle = step * stepDistance
-			var x = cos(stepAngle)
-			var z = sin(stepAngle)
-			firstCuarter.append(Vector3(x,y,z))
-
-	print(firstCuarter)
-	var secondCuarter = []
-	var multiplyVector = Vector3(1,-1,1)
-	for i in range(firstCuarter.size()):
-		var vector = firstCuarter[i]
-		var newVector = multiplyVector * vector
-
-
-
-
 
 
 
