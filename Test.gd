@@ -8,7 +8,7 @@ extends Spatial
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print("ejecucion func ready")
+	#print("ejecucion func ready")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 

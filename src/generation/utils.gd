@@ -1,14 +1,14 @@
 
 func test():
-	generateQuarterSphereMesh(15,12)
-	pass
+	return generateQuarterSphereMesh(10,10)
+	
 
 func generateQuarterSphereMesh(radius,detail):
-	# var circularDiameter = PI/2
+
 	var totalDegrees = 90
 	var degreeSteps = float(totalDegrees) / detail
-	print(degreeSteps,"degreeSteps")
-	print(degreeSteps * detail," shuld be ",totalDegrees)
+	# print(degreeSteps," -degreeSteps")
+	# print(degreeSteps * detail," shuld be ",totalDegrees)
 
 	var points = []
 	var ringsDetailsArray = []
@@ -20,28 +20,112 @@ func generateQuarterSphereMesh(radius,detail):
 		var ringDetail = round(cos(deg2rad(totalDegreesForY)) * detail)
 		var degreeStepsNew = float(totalDegrees)/ringDetail
 		# print(degreeStepsNew," shuld be float or ",(totalDegrees / ringDetail), " or the float shuld be", (float(totalDegrees)/ringDetail)  )
-		ringsDetailsArray.append(ringDetail)
-		print(ringDetail," -ringDetail")
+		ringsDetailsArray.append(ringDetail+1)
+		# print(ringDetail," -ringDetail")
 		for i in range(ringDetail+1):
 			var totalDegreesIn = degreeStepsNew * i
 			var x = ringDiameter * cos(deg2rad((totalDegreesIn)))
 			var z = ringDiameter * sin(deg2rad((totalDegreesIn)))
 			points.append(Vector3(x,y,z))
 	
+	var actualPointIndex = 0
+	var indexesArray = []
+	for ring in range(ringsDetailsArray.size()):
+		print(ring," -ring")
 
-
-	for i in range(ringsDetailsArray.size()):
-		var actualRing = ringsDetailsArray[i]
-
+		var actualRingSize = ringsDetailsArray[ring]
+		print(actualRingSize," -actualRingSize")
+		var nextRingSize = 0
+		# if exsist the next ring, add it
+		if (!(ring+1 >= ringsDetailsArray.size())):
+			nextRingSize = ringsDetailsArray[ring+1] 
 		
+		print(actualRingSize," -actualRingSize")
+		print(nextRingSize," -nextRingSize")
+		var ringsDiference = actualRingSize - nextRingSize
+		print(ringsDiference, " -ringsDiference")
+		# TODO make a consistent var actualPointIndex across all rings
+		
+		var lastIndexes = []
+		var ringIndexesArray = []
+		
+		if (ringsDiference == 2):
+			# apply the grups method
+			var grupSize = (int(nextRingSize / 2)) 
+			for grup in range(3):
+				for _step in range(grupSize):
+					print("step!")
+					print(actualPointIndex," -actualPointIndex into one step")
+					# there are 2 points in each step
+					# point A being the point of the bigger ring
+					# and point B being the point of the next ring that is in front of point A
+					var pointA = actualPointIndex
+					print(pointA)
+					var pointB = actualPointIndex + actualRingSize - grup
 
-	print(points)
+					lastIndexes.append(pointA)
+					if (lastIndexes.size() >= 3):
+						var lastPoint = lastIndexes[lastIndexes.size()-1]
+						var secondLastPoint = lastIndexes[lastIndexes.size()-2]
+						var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
+
+						ringIndexesArray.append(lastPoint)
+						ringIndexesArray.append(secondLastPoint)
+						ringIndexesArray.append(thirdLastPoint)
+					
+					lastIndexes.append(pointB)
+
+					if (lastIndexes.size() >= 3):
+						var lastPoint = lastIndexes[lastIndexes.size()-1]
+						var secondLastPoint = lastIndexes[lastIndexes.size()-2]
+						var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
+						
+						ringIndexesArray.append(lastPoint)
+						ringIndexesArray.append(thirdLastPoint)
+						ringIndexesArray.append(secondLastPoint)
+					
+					actualPointIndex = actualPointIndex + 1
+		elif (!nextRingSize):
+			print("touche the pole!")
+			print(actualPointIndex," -actualPointIndex it is ojay?")
+			# apply the pole method
+			pass
+		else:
+			# apply the ping pong method
+			for _point in range(actualRingSize):
+				var pointA = actualPointIndex
+				print(pointA)
+				var pointB = pointA + actualRingSize
+				if (lastIndexes.size() >= 3):
+					var lastPoint = lastIndexes[lastIndexes.size()-1]
+					var secondLastPoint = lastIndexes[lastIndexes.size()-2]
+					var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
+
+					ringIndexesArray.append(lastPoint)
+					ringIndexesArray.append(secondLastPoint)
+					ringIndexesArray.append(thirdLastPoint)
 
 
-func generateSphereMesh2(radius,detail):
+				lastIndexes.append(pointB)
+				if (lastIndexes.size() >= 3):
+					var lastPoint = lastIndexes[lastIndexes.size()-1]
+					var secondLastPoint = lastIndexes[lastIndexes.size()-2]
+					var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
+					
+					ringIndexesArray.append(lastPoint)
+					ringIndexesArray.append(thirdLastPoint)
+					ringIndexesArray.append(secondLastPoint)
 
-	var cuarterDetail = detail/4
-	pass
+				actualPointIndex = actualPointIndex + 1
+		print(actualPointIndex," - actualPointIndex at the end of the ring for")
+
+		indexesArray.append_array(ringIndexesArray)
+	print(indexesArray)
+
+	return createMeshInstance(points,indexesArray)
+
+
+	# print(points)
 
 
 func generateSphereMesh(size,detail):
@@ -159,3 +243,20 @@ func generateLinearMesh(totalX,totalZ):
 
 
 
+func createMeshInstance(vertexArray,indexesArray):
+	
+	var total_surface_array = []
+	total_surface_array.resize(Mesh.ARRAY_MAX)
+
+	total_surface_array[ArrayMesh.ARRAY_VERTEX] = PoolVector3Array(vertexArray)
+	total_surface_array[ArrayMesh.ARRAY_INDEX] = PoolIntArray(indexesArray)
+
+	var mesh = ArrayMesh.new()
+
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, total_surface_array)
+
+	var meshInstance = MeshInstance.new()
+
+	meshInstance.mesh = mesh
+
+	return meshInstance

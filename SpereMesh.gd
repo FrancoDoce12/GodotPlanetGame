@@ -9,7 +9,7 @@ var utilsInstance = utils.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	self.mesh = utilsInstance.test()
+	self.mesh = utilsInstance.test().mesh
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

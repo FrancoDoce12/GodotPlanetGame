@@ -20,4 +20,5 @@ fov = 75.7142
 script = ExtResource( 3 )
 
 [node name="SpereMesh" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.60494, 0, -7.46062 )
 script = ExtResource( 4 )
