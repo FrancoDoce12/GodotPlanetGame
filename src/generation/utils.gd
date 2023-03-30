@@ -1,14 +1,37 @@
 
 func test():
-	return generateQuarterSphereMesh(10,10)
+	return generateQuarterSphereMesh(5,5)
+
 	
 
-func generateQuarterSphereMesh(radius,detail):
+func manangeTriangle(previusIndexes:Array,indexArray:Array,reverseStep:bool):
+	if (previusIndexes.size() >= 3):
+		var lastPoint = previusIndexes[previusIndexes.size()-1]
+		var secondLastPoint = previusIndexes[previusIndexes.size()-2]
+		var thirdLastPoint = previusIndexes[previusIndexes.size()-3]
+
+		if (reverseStep):
+			indexArray.append(lastPoint)
+			indexArray.append(thirdLastPoint)
+			indexArray.append(secondLastPoint)
+		else:
+			indexArray.append(lastPoint)
+			indexArray.append(secondLastPoint)
+			indexArray.append(thirdLastPoint)
+
+
+
+func generateQuarterSphereMesh(radius:int,detail:int):
+
+
+	#--------------------------------------------------------------------------
+	#------------ Starts of Vertexs3 array creation for the mesh --------------
+	#--------------------------------------------------------------------------
+
+
 
 	var totalDegrees = 90
 	var degreeSteps = float(totalDegrees) / detail
-	# print(degreeSteps," -degreeSteps")
-	# print(degreeSteps * detail," shuld be ",totalDegrees)
 
 	var points = []
 	var ringsDetailsArray = []
@@ -19,110 +42,95 @@ func generateQuarterSphereMesh(radius,detail):
 		
 		var ringDetail = round(cos(deg2rad(totalDegreesForY)) * detail)
 		var degreeStepsNew = float(totalDegrees)/ringDetail
-		# print(degreeStepsNew," shuld be float or ",(totalDegrees / ringDetail), " or the float shuld be", (float(totalDegrees)/ringDetail)  )
 		ringsDetailsArray.append(ringDetail+1)
-		# print(ringDetail," -ringDetail")
 		for i in range(ringDetail+1):
 			var totalDegreesIn = degreeStepsNew * i
 			var x = ringDiameter * cos(deg2rad((totalDegreesIn)))
 			var z = ringDiameter * sin(deg2rad((totalDegreesIn)))
 			points.append(Vector3(x,y,z))
 	
+
+
+	#--------------------------------------------------------------------------
+	#------------- Starts of Indexes array creation for the mesh --------------
+	#--------------------------------------------------------------------------
+
+
 	var actualPointIndex = 0
 	var indexesArray = []
 	for ring in range(ringsDetailsArray.size()):
-		print(ring," -ring")
 
 		var actualRingSize = ringsDetailsArray[ring]
-		print(actualRingSize," -actualRingSize")
+		# print(actualRingSize," -actualRingSize")
 		var nextRingSize = 0
 		# if exsist the next ring, add it
 		if (!(ring+1 >= ringsDetailsArray.size())):
 			nextRingSize = ringsDetailsArray[ring+1] 
 		
-		print(actualRingSize," -actualRingSize")
-		print(nextRingSize," -nextRingSize")
-		var ringsDiference = actualRingSize - nextRingSize
-		print(ringsDiference, " -ringsDiference")
-		# TODO make a consistent var actualPointIndex across all rings
+		var ringsDiference = int(actualRingSize - nextRingSize)
 		
+
 		var lastIndexes = []
 		var ringIndexesArray = []
-		
-		if (ringsDiference == 2):
-			# apply the grups method
-			var grupSize = (int(nextRingSize / 2)) 
-			for grup in range(3):
-				for _step in range(grupSize):
-					print("step!")
-					print(actualPointIndex," -actualPointIndex into one step")
-					# there are 2 points in each step
-					# point A being the point of the bigger ring
-					# and point B being the point of the next ring that is in front of point A
+
+		match ringsDiference:
+			0:
+				for _currentPoint in range(actualRingSize):
+
 					var pointA = actualPointIndex
-					print(pointA)
-					var pointB = actualPointIndex + actualRingSize - grup
+					var pointB = pointA + actualRingSize
 
 					lastIndexes.append(pointA)
-					if (lastIndexes.size() >= 3):
-						var lastPoint = lastIndexes[lastIndexes.size()-1]
-						var secondLastPoint = lastIndexes[lastIndexes.size()-2]
-						var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
-
-						ringIndexesArray.append(lastPoint)
-						ringIndexesArray.append(secondLastPoint)
-						ringIndexesArray.append(thirdLastPoint)
+					manangeTriangle(lastIndexes,ringIndexesArray,false)
 					
 					lastIndexes.append(pointB)
+					manangeTriangle(lastIndexes,ringIndexesArray,true)
 
-					if (lastIndexes.size() >= 3):
-						var lastPoint = lastIndexes[lastIndexes.size()-1]
-						var secondLastPoint = lastIndexes[lastIndexes.size()-2]
-						var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
-						
-						ringIndexesArray.append(lastPoint)
-						ringIndexesArray.append(thirdLastPoint)
-						ringIndexesArray.append(secondLastPoint)
+					actualPointIndex = actualPointIndex + 1
+
+			1: 
+				
+				for currentPoint in range(actualRingSize):
+
+					var pointA = actualPointIndex
+					var pointB = pointA + actualRingSize
+
+					lastIndexes.append(pointA)
+					manangeTriangle(lastIndexes,ringIndexesArray,false)
+					
+					if ((currentPoint + 1 != actualRingSize)  ):
+						lastIndexes.append(pointB)
+						manangeTriangle(lastIndexes,ringIndexesArray,true)
 					
 					actualPointIndex = actualPointIndex + 1
-		elif (!nextRingSize):
-			print("touche the pole!")
-			print(actualPointIndex," -actualPointIndex it is ojay?")
-			# apply the pole method
-			pass
-		else:
-			# apply the ping pong method
-			for _point in range(actualRingSize):
-				var pointA = actualPointIndex
-				print(pointA)
-				var pointB = pointA + actualRingSize
-				lastIndexes.append(pointA)
-				if (lastIndexes.size() >= 3):
-					var lastPoint = lastIndexes[lastIndexes.size()-1]
-					var secondLastPoint = lastIndexes[lastIndexes.size()-2]
-					var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
+			2:
+				var grupSize = (int(nextRingSize / 2)) 
+				for grup in range(3):
+					for _step in range(grupSize):
+						# there are 2 points in each step
+						# point A being the point of the bigger ring
+						# and point B being the point of the next ring that is in front of point A
+						var pointA = actualPointIndex
+						var pointB = actualPointIndex + actualRingSize - grup
 
-					ringIndexesArray.append(lastPoint)
-					ringIndexesArray.append(secondLastPoint)
-					ringIndexesArray.append(thirdLastPoint)
+						lastIndexes.append(pointA)
+						manangeTriangle(lastIndexes,ringIndexesArray,false)
+						
+						lastIndexes.append(pointB)
+						manangeTriangle(lastIndexes,ringIndexesArray,true)
+						
+						actualPointIndex = actualPointIndex + 1
+			_:
+				print("touche the pole!")
+				# apply the pole method
+				pass
 
+		# print(ringIndexesArray," - ringIndexesArray at the end of the ring for")
 
-				lastIndexes.append(pointB)
-				if (lastIndexes.size() >= 3):
-					var lastPoint = lastIndexes[lastIndexes.size()-1]
-					var secondLastPoint = lastIndexes[lastIndexes.size()-2]
-					var thirdLastPoint = lastIndexes[lastIndexes.size()-3]
-					
-					ringIndexesArray.append(lastPoint)
-					ringIndexesArray.append(thirdLastPoint)
-					ringIndexesArray.append(secondLastPoint)
-
-				actualPointIndex = actualPointIndex + 1
-		print(actualPointIndex," - actualPointIndex at the end of the ring for")
 
 		indexesArray.append_array(ringIndexesArray)
-	print(indexesArray)
-	print(indexesArray)
+	# print(points)
+	# print(indexesArray)
 	return createMeshInstance(points,indexesArray)
 
 
