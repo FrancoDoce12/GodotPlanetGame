@@ -9,7 +9,7 @@
 script = ExtResource( 1 )
 
 [node name="CameraRing" type="Spatial" parent="."]
-transform = Transform( -0.853114, 0, -0.521725, 0, 1, 0, 0.521725, 0, -0.853114, 0, 1.61294, 0 )
+transform = Transform( 0.739596, -0.230197, 0.632461, 0, 0.939693, 0.34202, -0.673051, -0.252957, 0.694993, -1.82239, 5.96545, -1.80798 )
 script = ExtResource( 2 )
 
 [node name="Camera" type="Camera" parent="CameraRing"]

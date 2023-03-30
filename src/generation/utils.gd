@@ -1,8 +1,7 @@
 
 func test():
-	return generateQuarterSphereMesh(5,5)
+	return generateQuarterSphereMesh(5,60)
 
-	
 
 func manangeTriangle(previusIndexes:Array,indexArray:Array,reverseStep:bool):
 	if (previusIndexes.size() >= 3):
@@ -33,9 +32,13 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 	var totalDegrees = 90
 	var degreeSteps = float(totalDegrees) / detail
 
-	var points = []
+	# var points = []
 	var ringsDetailsArray = []
+	var firstRingPoints
+	var notMiddlePoints = []
 	for ringY in range(detail):
+		var ringsPoints = []
+
 		var totalDegreesForY = degreeSteps * ringY
 		var y = radius * sin(deg2rad(totalDegreesForY))
 		var ringDiameter = radius * cos(deg2rad(totalDegreesForY))
@@ -47,8 +50,15 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 			var totalDegreesIn = degreeStepsNew * i
 			var x = ringDiameter * cos(deg2rad((totalDegreesIn)))
 			var z = ringDiameter * sin(deg2rad((totalDegreesIn)))
-			points.append(Vector3(x,y,z))
-	
+			ringsPoints.append(Vector3(x,y,z))
+		# points.append_array(ringsPoints)
+
+		if (ringY == 0):
+			firstRingPoints = ringsPoints
+		else:
+			notMiddlePoints.append_array(ringsPoints)
+
+
 
 
 	#--------------------------------------------------------------------------
@@ -56,12 +66,12 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 	#--------------------------------------------------------------------------
 
 
+
 	var actualPointIndex = 0
 	var indexesArray = []
 	for ring in range(ringsDetailsArray.size()):
 
 		var actualRingSize = ringsDetailsArray[ring]
-		# print(actualRingSize," -actualRingSize")
 		var nextRingSize = 0
 		# if exsist the next ring, add it
 		if (!(ring+1 >= ringsDetailsArray.size())):
@@ -72,6 +82,8 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 
 		var lastIndexes = []
 		var ringIndexesArray = []
+
+		# ----------------------- adding the ftriangles -----------------------
 
 		match ringsDiference:
 			0:
@@ -104,11 +116,15 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 					
 					actualPointIndex = actualPointIndex + 1
 			2:
-				var grupSize = (int(nextRingSize / 2)) 
+				# tgis sitem uses grupes and the middel grup is larger by 1+
+				var grupNormalSize = int(nextRingSize / 2)
+				var grupSizeRest = int(nextRingSize) % 2
+				var grupesSizes = [grupNormalSize,grupSizeRest+2,grupNormalSize]
 				for grup in range(3):
+					var grupSize = grupesSizes[grup]
 					for _step in range(grupSize):
 						# there are 2 points in each step
-						# point A being the point of the bigger ring
+						# point A being the point of the current ring
 						# and point B being the point of the next ring that is in front of point A
 						var pointA = actualPointIndex
 						var pointB = actualPointIndex + actualRingSize - grup
@@ -129,8 +145,42 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 
 
 		indexesArray.append_array(ringIndexesArray)
-	# print(points)
-	# print(indexesArray)
+
+	#----------------------------------------------------------------
+	#-------------- Initialising the conection points  --------------
+	#----------------------------------------------------------------
+
+
+	# the button ring is the first int(ringsDetailsArray[0]) of the points Array
+	var buttonRingIndexes = []
+	for pointIndex in range(ringsDetailsArray[0]):
+		buttonRingIndexes.append(pointIndex)
+
+	# the top ring is the last int(ringsDetailsArray.back()) of the points Array
+	var topRingIndexes = []
+	for pointIndex in range(ringsDetailsArray.back()):
+		topRingIndexes.push_front(firstRingPoints.size() + notMiddlePoints.size() - pointIndex-1)
+	
+	# the vertical line are the first points of each ring, meaking a perfect line with all points the same z value, z=0 
+	# var verticalLineIndexes = []
+	# var verticalLineIndexesCount = 0
+	# for detailInRing in range(ringsDetailsArray):
+	# 	verticalLineIndexes.append(verticalLineIndexesCount)
+	# 	verticalLineIndexesCount = verticalLineIndexesCount + ringsDetailsArray[detailInRing]
+
+	var points = firstRingPoints + notMiddlePoints
+
+	
+	print(ringsDetailsArray)
+	print(points)
+	print(indexesArray)
+
+	
+
+
+	
+
+
 	return createMeshInstance(points,indexesArray)
 
 
