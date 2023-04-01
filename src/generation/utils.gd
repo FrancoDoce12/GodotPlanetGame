@@ -364,24 +364,15 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 	var indexes = completeSphereIndexes + conectionPoints + topPoleIndexes + buttonPoleIndexes
 
 	
-	print(ringsDetailsArray)
-	print(indexesArray)
-	print("\n")
-	print("POINTS")
-	print(points)
-	print("\n")
-	print(quarterSphereIndexes)
+	# print(ringsDetailsArray)
+	# print(indexesArray)
+	# print("\n")
+	# print("POINTS")
+	# print(points)
+	# print("\n")
+	# print(quarterSphereIndexes)
 	
 
-
-
-
-
-
-	
-
-
-	
 
 
 	return createMeshInstance(points,indexes)
@@ -454,15 +445,45 @@ func generateLinearMesh(totalX,totalZ):
 
 	return meshInstance
 
+func calculateNormals(vertexArray, indexesArray):
+	var normalArray = []
+
+	for _i in range(vertexArray.size()):
+		normalArray.append(Vector3.ZERO)
+
+	for i in range(indexesArray.size() / 3):
+		var index0 = indexesArray[i * 3 + 0]
+		var index1 = indexesArray[i * 3 + 1]
+		var index2 = indexesArray[i * 3 + 2]
+
+		var v0 = vertexArray[index0]
+		var v1 = vertexArray[index1]
+		var v2 = vertexArray[index2]
+
+		var normal = (v1 - v0).cross(v2 - v0)
+		normal = -normal
+
+
+		normalArray[index0] += normal
+		normalArray[index1] += normal
+		normalArray[index2] += normal
+
+	for i in range(normalArray.size()):
+		normalArray[i].normalized()
+
+	return normalArray
 
 
 func createMeshInstance(vertexArray,indexesArray):
+
+	var normalArray = calculateNormals(vertexArray,indexesArray)
 	
 	var total_surface_array = []
 	total_surface_array.resize(Mesh.ARRAY_MAX)
 
 	total_surface_array[ArrayMesh.ARRAY_VERTEX] = PoolVector3Array(vertexArray)
 	total_surface_array[ArrayMesh.ARRAY_INDEX] = PoolIntArray(indexesArray)
+	total_surface_array[ArrayMesh.ARRAY_NORMAL] = PoolVector3Array(normalArray)
 
 	var mesh = ArrayMesh.new()
 
