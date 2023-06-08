@@ -1,3 +1,8 @@
 inside utils.gd make one function to make some thing a mesh instance
 and other one make the liniar mesh alredy done
 and another for the terrain
+
+
+: me quede en la parte que quiero meter el array de vectores ya convertido en byts 
+pero me encuentro con un error y quiero saber de donde sale y porque me lo dice ya 
+que no hay ningun vector con el tamaño en 0 osea a que se refiere?

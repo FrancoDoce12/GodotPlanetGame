@@ -1,0 +1,20 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/uploads_files_980447_Low+Poly+Pawn.obj-a4dae807f22747ac37b84efacd042c28.mesh"
+
+[deps]
+
+files=[ "res://.import/uploads_files_980447_Low+Poly+Pawn.obj-a4dae807f22747ac37b84efacd042c28.mesh" ]
+
+source_file="res://data/data/3dFiles/uploads_files_980447_Low+Poly+Pawn.obj"
+dest_files=[ "res://.import/uploads_files_980447_Low+Poly+Pawn.obj-a4dae807f22747ac37b84efacd042c28.mesh", "res://.import/uploads_files_980447_Low+Poly+Pawn.obj-a4dae807f22747ac37b84efacd042c28.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+octahedral_compression=true
+optimize_mesh_flags=4286

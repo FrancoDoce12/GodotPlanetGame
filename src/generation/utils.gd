@@ -1,6 +1,6 @@
 
 func test():
-	return generateQuarterSphereMesh(5,5)
+	return generateQuarterSphereMesh(5,10)
 
 
 func manangeTriangle(previusIndexes:Array,indexArray:Array,reverseStep:bool):
@@ -99,8 +99,307 @@ func conectRingToPole(RingIndexes:Array,PoleIndex:int, reverse:bool):
 
 
 func generateQuarterSphereMesh(radius:int,detail:int):
+	# EXPLANAITION:
+	# first we gona generate an octavio of vectors of the top left back corner of 
+	# the sphere and then copy the points and muliply by -1 diferent axis to get a sphere
+	
+	# WHY? because it need less sin() and cos() functions calculations with are expensive
+	# in the performance, right? 
+
+	# INDEX:
+	# 
+
+	#--------------------------------------------------------------------------
+	#------------ Starts of Vertexs3d array creation for the mesh -------------
+	#--------------------------------------------------------------------------
+
+	# ------ in this part generate an octavio of the sphere in vectors --------
 
 
+	var totalDegrees = 90 
+	var degreeSteps = float(totalDegrees) / detail
+
+	var ringsDetailsArray = []
+	var firstRingPoints
+	var generalPointsXYZ = []
+
+	for ringY in range(detail):
+		var ringsPoints = []
+
+		var totalDegreesForY = degreeSteps * ringY
+		var y = sin(deg2rad(totalDegreesForY)) * radius
+		var ringDiameter = cos(deg2rad(totalDegreesForY)) * radius
+		
+		var ringDetail = round(cos(deg2rad(totalDegreesForY)) * detail)
+		var degreeStepsNew = float(totalDegrees)/ringDetail
+		ringsDetailsArray.append(ringDetail)
+
+		for i in range(ringDetail):
+			var totalDegreesIn = degreeStepsNew * i
+			var x = ringDiameter * cos(deg2rad((totalDegreesIn)))
+			var z = ringDiameter * sin(deg2rad((totalDegreesIn)))
+			ringsPoints.append(Vector3(x,y,z))
+
+		if (ringY == 0):
+			firstRingPoints = ringsPoints
+		else:
+			generalPointsXYZ.append_array(ringsPoints)
+
+
+
+
+	#--------------------------------------------------------------------------
+	#------------- Starts of Indexes array creation for the mesh --------------
+	#--------------------------------------------------------------------------
+
+
+
+	var actualPointIndex = 0
+	var indexesArray = []
+	for ring in range(ringsDetailsArray.size()):
+
+		var actualRingSize = ringsDetailsArray[ring]
+		var nextRingSize = 0
+		# if exsist the next ring, add it
+		if (!(ring+1 >= ringsDetailsArray.size())):
+			nextRingSize = ringsDetailsArray[ring+1] 
+		
+		var ringsDiference = int(actualRingSize - nextRingSize)
+		
+
+		var lastIndexes = []
+		var ringIndexesArray = []
+
+		# ----------------------- adding the ftriangles -----------------------
+
+		match ringsDiference:
+			0:
+				for _currentPoint in range(actualRingSize):
+
+					var pointA = actualPointIndex
+					var pointB = pointA + actualRingSize
+
+					lastIndexes.append(pointA)
+					manangeTriangle(lastIndexes,ringIndexesArray,false)
+					
+					lastIndexes.append(pointB)
+					manangeTriangle(lastIndexes,ringIndexesArray,true)
+
+					actualPointIndex = actualPointIndex + 1
+
+			1: 
+				
+				for currentPoint in range(actualRingSize):
+
+					var pointA = actualPointIndex
+					var pointB = pointA + actualRingSize
+
+					lastIndexes.append(pointA)
+					manangeTriangle(lastIndexes,ringIndexesArray,false)
+					
+					if ((currentPoint + 1 != actualRingSize)  ):
+						lastIndexes.append(pointB)
+						manangeTriangle(lastIndexes,ringIndexesArray,true)
+					
+					actualPointIndex = actualPointIndex + 1
+			2:
+				# tgis sitem uses grupes and the middel grup is larger by 1+
+				var grupNormalSize = int(nextRingSize / 2)
+				var grupSizeRest = int(nextRingSize) % 2
+				var grupesSizes = [grupNormalSize,grupSizeRest+2,grupNormalSize]
+				for grup in range(3):
+					var grupSize = grupesSizes[grup]
+					for _step in range(grupSize):
+						# there are 2 points in each step
+						# point A being the point of the current ring
+						# and point B being the point of the next ring that is in front of point A
+						var pointA = actualPointIndex
+						var pointB = actualPointIndex + actualRingSize - grup
+
+						lastIndexes.append(pointA)
+						manangeTriangle(lastIndexes,ringIndexesArray,false)
+						
+						lastIndexes.append(pointB)
+						manangeTriangle(lastIndexes,ringIndexesArray,true)
+						
+						actualPointIndex = actualPointIndex + 1
+			_:
+				print("touche the pole!")
+				# apply the pole method
+				pass
+
+		# print(ringIndexesArray," - ringIndexesArray at the end of the ring for")
+
+
+		indexesArray.append_array(ringIndexesArray)
+
+		
+
+
+
+	# creating the points of the sphere
+
+	var generalPointsX_YZ = multiplyPointsArray(Vector3(1,-1,1),generalPointsXYZ)
+	
+	var quarterSpherePoints = firstRingPoints  +  generalPointsXYZ + generalPointsX_YZ
+	var halfSpherePoints = quarterSpherePoints + transformPointsArray(quarterSpherePoints)
+	var comleteSpherePoints = halfSpherePoints + multiplyPointsArray(Vector3(-1,1,-1),halfSpherePoints) 
+	# adding the poles points
+	comleteSpherePoints = comleteSpherePoints + [Vector3(0,-radius,0),Vector3(0,radius,0)]
+
+	# indexesArray = firstRingPoints + generalPointsXYZ indexes....
+
+	# ----------------------- getting the indexes for the quarterSpherePoints -----------------------
+	# first we gonna conect the generalPoints-y with the first ring points and the genereal points between them
+
+
+	
+	var generalIndexesX_YZ = []
+	for i in range(indexesArray.size()):
+		var index =  indexesArray[i]
+		# if the index is from the midle ring, whe conect it
+		if (index < ringsDetailsArray[0]):
+			generalIndexesX_YZ.append(index)
+		else:
+			generalIndexesX_YZ.append(index + generalPointsXYZ.size())
+
+	# reverse the triangles
+	generalIndexesX_YZ = changeOrderOfTriangle(generalIndexesX_YZ)
+
+
+
+	var quarterSphereIndexes = indexesArray + generalIndexesX_YZ 
+	var halfSphereIndexes = quarterSphereIndexes + sumIndexesSomeValue(quarterSphereIndexes, quarterSpherePoints.size())
+	var completeSphereIndexes = halfSphereIndexes + sumIndexesSomeValue(halfSphereIndexes, quarterSpherePoints.size()*2)
+
+
+	#----------------------------------------------------------------
+	#-------------- Initialising the conection points  --------------
+	#----------------------------------------------------------------
+
+
+	# the vertical line are the first points of each ring, meaking a perfect line with all points the same z value, z=0 
+	var verticalLineIndexesXYZ = []
+	# this is the line (the not stringt end of the quarter) that have to conect with the the vertical line (that it is a straigt line)
+	var conectionLineIndexesXYZ = []
+	var verticalLineIndexesCount = 0
+	for detailInRing in range(ringsDetailsArray.size()):
+		verticalLineIndexesXYZ.append(verticalLineIndexesCount)
+		verticalLineIndexesCount = verticalLineIndexesCount + ringsDetailsArray[detailInRing]
+		conectionLineIndexesXYZ.append(verticalLineIndexesCount-1)
+
+
+
+
+	#----------------------------------------------------------------
+	#---------------- Conecting Parts of the Sphere  ----------------
+	#----------------------------------------------------------------
+
+	# do the same thing to both conection parts
+	var verticalLineIndexesX_YZ = sumIndexesSomeValue(verticalLineIndexesXYZ, generalPointsXYZ.size())
+	var conectionLineIndexesX_YZ = sumIndexesSomeValue(conectionLineIndexesXYZ, generalPointsXYZ.size())
+	# delete the middle ring index of the array
+	verticalLineIndexesX_YZ.pop_front()
+	conectionLineIndexesX_YZ.pop_front()
+	# invert eh order so it starts fom the buttom of the sphere
+	verticalLineIndexesX_YZ.invert()
+	conectionLineIndexesX_YZ.invert()
+
+
+	var concectionLineIndexesQuarterSphere_0 = conectionLineIndexesX_YZ + conectionLineIndexesXYZ
+	var concectionLineIndexesQuarterSphere_1 = sumIndexesSomeValue(concectionLineIndexesQuarterSphere_0, quarterSpherePoints.size())
+	var concectionLineIndexesQuarterSphere_2 = sumIndexesSomeValue(concectionLineIndexesQuarterSphere_1, quarterSpherePoints.size())
+	var concectionLineIndexesQuarterSphere_3 = sumIndexesSomeValue(concectionLineIndexesQuarterSphere_2, quarterSpherePoints.size())
+
+	var verticalLineIndexesQuarterSphere_0 = verticalLineIndexesX_YZ + verticalLineIndexesXYZ
+	var verticalLineIndexesQuarterSphere_1 = sumIndexesSomeValue(verticalLineIndexesQuarterSphere_0, quarterSpherePoints.size())
+	var verticalLineIndexesQuarterSphere_2 = sumIndexesSomeValue(verticalLineIndexesQuarterSphere_1, quarterSpherePoints.size())
+	var verticalLineIndexesQuarterSphere_3 = sumIndexesSomeValue(verticalLineIndexesQuarterSphere_2, quarterSpherePoints.size())
+
+
+	var conectionOne  = getTrianglesConected(concectionLineIndexesQuarterSphere_0,verticalLineIndexesQuarterSphere_1 )
+	var conectionTwo  = getTrianglesConected(concectionLineIndexesQuarterSphere_1,verticalLineIndexesQuarterSphere_2 )
+	var conectionThre = getTrianglesConected(concectionLineIndexesQuarterSphere_2,verticalLineIndexesQuarterSphere_3 )
+	var conectionFour = getTrianglesConected(concectionLineIndexesQuarterSphere_3,verticalLineIndexesQuarterSphere_0 )
+
+
+	var conectionPoints = conectionOne + conectionTwo + conectionThre + conectionFour
+
+	#----------------------------------------------------------------
+	#----------- Initialising the poles conection rings  ------------
+	#----------------------------------------------------------------
+
+	# ---------------- Basic quarter of +y indexes ----------------
+
+	# the top ring is the last int(ringsDetailsArray.back()) of the points Array
+	var topRingIndexesOne = []
+	for pointIndex in range(ringsDetailsArray.back()):
+		topRingIndexesOne.push_front(firstRingPoints.size() + generalPointsXYZ.size() - pointIndex-1)
+	
+	# ---------------- Basic quarter of -y indexes ----------------
+	var buttonRingIndexesOne = sumIndexesSomeValue(topRingIndexesOne,generalPointsXYZ.size())
+
+
+	# ----------------- creating the rings indexes -----------------
+
+	var topRingIndexesTwo = sumIndexesSomeValue(topRingIndexesOne,quarterSpherePoints.size())
+	var topRingIndexesThree = sumIndexesSomeValue(topRingIndexesTwo,quarterSpherePoints.size())
+	var topRingIndexesFour = sumIndexesSomeValue(topRingIndexesThree,quarterSpherePoints.size())
+
+	var topRingIndexes = topRingIndexesOne + topRingIndexesTwo + topRingIndexesThree + topRingIndexesFour
+	
+	var buttonRingIndexesTwo = sumIndexesSomeValue(buttonRingIndexesOne,quarterSpherePoints.size())
+	var buttonRingIndexesThree = sumIndexesSomeValue(buttonRingIndexesTwo,quarterSpherePoints.size())
+	var buttonRingIndexesFour = sumIndexesSomeValue(buttonRingIndexesThree,quarterSpherePoints.size())
+
+	var buttonRingIndexes = buttonRingIndexesOne + buttonRingIndexesTwo + buttonRingIndexesThree + buttonRingIndexesFour
+
+	#---------------------------------------------------------------
+	#------------ Connecting the poles conection rings  ------------
+	#---------------------------------------------------------------
+
+	var topPoleIndex = comleteSpherePoints.size()-1
+	var buttonPoleIndex = comleteSpherePoints.size()-2
+
+
+	var topPoleIndexes = conectRingToPole(topRingIndexes,topPoleIndex,false)
+	var buttonPoleIndexes = conectRingToPole(buttonRingIndexes,buttonPoleIndex,true)
+
+
+
+
+
+
+	var points = comleteSpherePoints
+	var indexes = completeSphereIndexes + conectionPoints + topPoleIndexes + buttonPoleIndexes
+
+	# ---------------------------------- debugs prints ----------------------------------
+	# print(ringsDetailsArray)
+	# print(indexesArray)
+	# print("\n")
+	# print("POINTS")
+	# print(points)
+	# print("\n")
+	# print(quarterSphereIndexes)
+
+	var noise = OpenSimplexNoise.new()
+
+	# Configure
+	noise.seed = randi()
+	noise.octaves = 4
+	noise.period = 20.0
+	noise.persistence = 0.7
+	
+
+
+	return createMeshInstance(points,indexes)
+
+
+	# print(points)
+
+
+func points(detail, radius):
+	
 	#--------------------------------------------------------------------------
 	#------------ Starts of Vertexs3 array creation for the mesh --------------
 	#--------------------------------------------------------------------------
@@ -361,26 +660,8 @@ func generateQuarterSphereMesh(radius:int,detail:int):
 
 
 	var points = comleteSpherePoints
-	var indexes = completeSphereIndexes + conectionPoints + topPoleIndexes + buttonPoleIndexes
 
-	
-	# print(ringsDetailsArray)
-	# print(indexesArray)
-	# print("\n")
-	# print("POINTS")
-	# print(points)
-	# print("\n")
-	# print(quarterSphereIndexes)
-	
-
-
-
-	return createMeshInstance(points,indexes)
-
-
-	# print(points)
-
-
+	return points
 
 
 

@@ -6,9 +6,13 @@ var utilsInstance = utils.new()
 # var a = 2
 # var b = "text"
 
-
+func _init():
+	print("init")
+func _enter_tree():
+	print("enter tree")
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	print("ready")
 	self.mesh = utilsInstance.test().mesh
 	
 	#var material = SpatialMaterial.new()
