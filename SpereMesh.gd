@@ -13,7 +13,7 @@ func _enter_tree():
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	print("ready")
-	self.mesh = utilsInstance.test().mesh
+	self.mesh = utilsInstance.generateXdistantVectorSphereMesh(5,60).mesh
 	
 	#var material = SpatialMaterial.new()
 	#material.albedo_color = Color(0.8, 0.8, 0.8)  # Color base del material

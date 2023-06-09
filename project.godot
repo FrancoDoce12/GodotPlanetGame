@@ -44,16 +44,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/campaing_map_clases/peopole/Personality.gd"
 }, {
-"base": "MeshInstance",
-"class": "Planet_mesh_instance",
-"language": "GDScript",
-"path": "res://src/space_objects/planetTest.gd"
-}, {
-"base": "Spatial",
-"class": "Procedural_part_of_gun",
-"language": "GDScript",
-"path": "res://new_script.gd"
-}, {
 "base": "Reference",
 "class": "SQLiteWrapper",
 "language": "GDScript",
@@ -77,8 +67,6 @@ _global_script_class_icons={
 "Ent": "",
 "Person": "",
 "Personality": "",
-"Planet_mesh_instance": "",
-"Procedural_part_of_gun": "",
 "SQLiteWrapper": "",
 "Settlement": "",
 "Thinking_Ent": ""
