@@ -131,8 +131,8 @@ func calculateNormals(vertexArray, indexesArray):
 
 
 # -------------------------- 2: Generations Functions --------------------------
-
-func generateXdistantVectorSphere(radius:int,detail:int):
+# returns just a dictionary with the keys of "vertexes" and "indexes"
+func generateXdistantVectorSphere(radius:int,detail:int) -> Dictionary:
 	# returns just a dictionary with the keys of "vertexes" and "indexes"
 
 	# EXPLANAITION:
@@ -485,7 +485,7 @@ func generateLinearMesh(totalX,totalZ):
 	# ------------------ 3: Functions of Creations of meshes and other godot objects  ------------------
 
 
-func createMeshInstance(vertexArray,indexesArray):
+func createMeshInstance(vertexArray,indexesArray) -> MeshInstance:
 
 	var normalArray = calculateNormals(vertexArray,indexesArray)
 	
@@ -506,8 +506,8 @@ func createMeshInstance(vertexArray,indexesArray):
 
 	return meshInstance
 
-
-func createMeshNoNormals(vertexArray:Array,indexesArray:Array):
+# returns a mesh, not a mesh intance 
+func createMeshNoNormals(vertexArray:Array,indexesArray:Array) -> Mesh:
 	# returns a mesh, not a mesh intance 
 
 	var total_surface_array = []
@@ -523,9 +523,9 @@ func createMeshNoNormals(vertexArray:Array,indexesArray:Array):
 	return mesh
 
 
-
-func createMesh(vertexArray,indexesArray):
-	# returns a mesh, not a mesh intance with normals
+# returns a mesh, not a mesh intance, with normals
+func createMesh(vertexArray,indexesArray) -> Mesh:
+	# returns a mesh, not a mesh intance, with normals
 	var normalArray = calculateNormals(vertexArray,indexesArray)
 	
 	var total_surface_array = []
@@ -541,6 +541,7 @@ func createMesh(vertexArray,indexesArray):
 
 	return mesh
 
+# does nothging
 func addNormalsToMesh(_mesh:ArrayMesh,_vertexes:Array,_indexes:Array):
 	# TODO
 	# mesh.get_meta_list()

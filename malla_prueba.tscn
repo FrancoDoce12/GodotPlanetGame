@@ -1,8 +1,0 @@
-[gd_scene format=2]
-
-[node name="Root" type="Spatial"]
-
-[node name="MeshInstance" type="MeshInstance" parent="."]
-
-[node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.415916, 0.909403, 0, -0.909403, 0.415916, 0, 8.45559, 0 )

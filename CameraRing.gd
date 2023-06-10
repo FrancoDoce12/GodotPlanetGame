@@ -1,4 +1,6 @@
 extends Spatial
+# EXPLANAITIONS:
+# This camera is coded to work with diferents modes
 
 # ------------------------------ Start of Variables ------------------------------
 
@@ -84,7 +86,7 @@ func mouseManangerSpace(event):
 		pos.z += zoom_speed
 		pos.z = clamp(pos.z, -max_zoom, -min_zoom)
 		self.translation = pos
-	
+
 
 func movementManangerSpace(delta):
 	var dir = Vector3()
