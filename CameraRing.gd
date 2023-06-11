@@ -76,16 +76,16 @@ func mouseManangerSpace(event):
 		rot.x -= event.relative.y * sensitivity
 		rot.y -= event.relative.x * sensitivity
 		self.rotation_degrees = rot
-	elif event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_UP:
-		var pos = self.translation
-		pos.z -= zoom_speed
-		pos.z = clamp(pos.z, -max_zoom, -min_zoom)
-		self.translation = pos
-	elif event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_DOWN:
-		var pos = self.translation
-		pos.z += zoom_speed
-		pos.z = clamp(pos.z, -max_zoom, -min_zoom)
-		self.translation = pos
+	# elif event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_UP:
+	# 	var pos = self.translation
+	# 	pos.z -= zoom_speed
+	# 	pos.z = clamp(pos.z, -max_zoom, -min_zoom)
+	# 	self.translation = pos
+	# elif event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_DOWN:
+	# 	var pos = self.translation
+	# 	pos.z += zoom_speed
+	# 	pos.z = clamp(pos.z, -max_zoom, -min_zoom)
+	# 	self.translation = pos
 
 
 func movementManangerSpace(delta):
@@ -111,7 +111,7 @@ func changeToPlanetMode(planetRadius_:int, planetCenter_:Vector3):
 	planetCenter = planetCenter_
 	planetRadius = planetRadius_
 
-	currentMouseMananger = funcref(self,"mouseManangerPlanet")
+	# currentMouseMananger = funcref(self,"mouseManangerPlanet")
 	currentMovementMananger = funcref(self,"movementManangerPlanet")
 
 # --------------- 4 godot build in functions ---------------
@@ -131,3 +131,8 @@ func _input(event):
 
 func _process(delta):
 	currentMovementMananger.call_func(delta)
+
+
+func _on_Planet_planetSelection(childNode):
+	print("gpña")
+	changeToPlanetMode(childNode.radius,childNode.global_translation )
