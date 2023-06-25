@@ -30,6 +30,10 @@ func mouseModeClick():
 func _ready():
 	#print("ejecucion func ready")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	var noiseGeneration = load("res://src/generation/noise_generation.gd").new()
+
+	noiseGeneration.interestinNoiseTest()
+
 	pass
 
 func _process(_delta):

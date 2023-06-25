@@ -33,5 +33,3 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5795, 4.57465, 6.13953 )
 mesh = ExtResource( 6 )
 
 [node name="Planet" parent="." instance=ExtResource( 5 )]
-
-[connection signal="planetSelection" from="Planet" to="CameraRing" method="_on_Planet_planetSelection"]
