@@ -11,11 +11,20 @@ var max_zoom = 10
 var movement_speed = 5
 # --------------- planet camera vars ---------------
 var planetCenter = Vector3(0,0,0)
-var planetZoom = 4
-# angleA is the Vertical coordinate of the planet
-var angleA = 0
-# angleB is the Horizontal coordinate of the planet
-var angleB = 0
+var planetMovmentSpeed = 10
+var planetMinZoom = 0.20
+var planetZoomSpeed = 0.30
+var planetZoom = 5
+var planetMaxZoom = 40
+
+
+# --------------- planet coordinates vars ---------------
+
+# al -> Altitude is the degree of the altitude of the camera, its important that the minimun value what can be is -35 and the max value is 35
+var al:float = 0.0
+
+# am -> Amplitude is a degree of the amplitude in with the camira is standing
+var am:float = 0.0
 var planetRadius:int
 # --------------- camera modes vars ---------------
 # posibles camera modes: "space", "planet"
@@ -23,7 +32,7 @@ var cameraMode = "space"
 var currentMouseMananger:FuncRef
 var currentMovementMananger:FuncRef
 
-
+signal debugSignal(text)
 
 # ------------------------------ Start of Functions ------------------------------
 # 1  Planet Functions:
@@ -33,41 +42,63 @@ var currentMovementMananger:FuncRef
 
 
 # --------------- 1 Planet Functions ---------------
-func mouseManangerPlanet(_event):
-	# for now it do not have to change anithing here
-	pass
+func mouseManangerPlanet(event):
+	Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
+
+	if event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_UP:
+		planetZoom = clamp(planetZoom + planetZoomSpeed, planetMinZoom, planetMaxZoom)
+	elif event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_DOWN:
+		planetZoom = clamp(planetZoom - planetZoomSpeed, planetMinZoom, planetMaxZoom)
+
+
 func movementManangerPlanet(delta):
 	# EXPLANAITION, 
 	# The movment in the planet is all manange by the coordinates angles of the planet the movment of the camera
 	# its the movment of their coordinates and then calculate the exact point using trigonometry of the vector 3d of the camera
-	var angleMovmentA = 0
-	var angleMovmentB = 0
-	if Input.is_action_pressed("move_forward"):
-		angleMovmentA += 1
-	if Input.is_action_pressed("move_backward"):
-		angleMovmentA -= 1
-	if Input.is_action_pressed("move_left"):
-		angleMovmentB -= 1
-	if Input.is_action_pressed("move_right"):
-		angleMovmentB += 1
-	
-	angleMovmentA = angleMovmentA * delta * movement_speed
-	angleMovmentB = angleMovmentB * delta * movement_speed
-	
-	angleA += angleMovmentA
-	angleB += angleMovmentB
-	var planetPosition = Vector3()
-	# the "planetPosition" vector shuld be the the position of the camera in relation of the planet center (0,0,0)
-	planetPosition.x = cos(deg2rad(angleA))
-	planetPosition.y = sin(deg2rad(angleA))
-	planetPosition.z = sin(deg2rad(angleB))
-	planetPosition = planetPosition.normalized()
 
+	var altitude:float = 0.0
+	var amplitude:float = 0.0
+	if Input.is_action_pressed("move_forward"):
+		altitude += 1
+	if Input.is_action_pressed("move_backward"):
+		altitude -= 1
+	if Input.is_action_pressed("move_left"):
+		amplitude += 1
+	if Input.is_action_pressed("move_right"):
+		amplitude -= 1
+	
+	altitude = altitude * delta * planetMovmentSpeed
+	amplitude = amplitude * delta * planetMovmentSpeed
+	
+	# make a var that acelerates the amplitude change in the poles
+	var amplitudeAceleration = sin(al)
+
+	al = clamp(altitude + al, -89, 89 )
+	am += amplitude 
+
+	self.rotation_degrees = Vector3(-al,-am+90,0)
+
+	# the "planetPosition" vector shuld be the the position of the camera in relation of the planet center (0,0,0)
+	var planetPosition = Vector3()
+
+	planetPosition.y = sin(deg2rad(al))
+	planetPosition.z = sin(deg2rad(am)) * cos(deg2rad(al))
+	planetPosition.x = cos(deg2rad(am)) * cos(deg2rad(al))
+	
+	
 	planetPosition = (planetPosition * (planetRadius + planetRadius / planetZoom)) 
 	# the "planetCenter" shuld be the center of the planet in relation of the 3d world
 	var finalPosition = planetCenter + planetPosition
 	
-	self.translate(finalPosition)
+	var text1 = str(al) + " -altitude" + "\n" + str(am) + " -amplitude" + "\n" + str(sin(deg2rad(al))) + " -sin(al)" + "\n"
+	var text2 = str(sin(deg2rad(am))) + " -sin(am)" + "\n" + str(cos(deg2rad(al))," -cos(al)") + str(cos(deg2rad(am))," -cos(am)")
+	var text3 = str("\n", planetPosition.y," -y,\n ",planetPosition.z," -z\n",planetPosition.x," -x")
+	var text4 = str("\nDISTANCE: ",planetCenter.distance_to(finalPosition))
+	emit_signal("debugSignal",text1+text2+text3+text4)
+
+
+	self.global_translation = finalPosition
+
 
 # --------------- 2 Space Functions ---------------
 func mouseManangerSpace(event):
@@ -111,7 +142,7 @@ func changeToPlanetMode(planetRadius_:int, planetCenter_:Vector3):
 	planetCenter = planetCenter_
 	planetRadius = planetRadius_
 
-	# currentMouseMananger = funcref(self,"mouseManangerPlanet")
+	currentMouseMananger = funcref(self,"mouseManangerPlanet")
 	currentMovementMananger = funcref(self,"movementManangerPlanet")
 
 # --------------- 4 godot build in functions ---------------
@@ -133,6 +164,9 @@ func _process(delta):
 	currentMovementMananger.call_func(delta)
 
 
-func _on_Planet_planetSelection(childNode):
-	print("gpña")
+
+func _on_Planet_planet_selected(childNode):
+	print("hola")
 	changeToPlanetMode(childNode.radius,childNode.global_translation )
+
+	pass # Replace with function body.

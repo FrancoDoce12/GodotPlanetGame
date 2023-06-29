@@ -28,12 +28,10 @@ func mouseModeClick():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#print("ejecucion func ready")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	var noiseGeneration = load("res://src/generation/noise_generation.gd").new()
 
-	noiseGeneration.interestinNoiseTest()
-
+	print(cos(deg2rad(230)), " cos 230")
+	print(cos(deg2rad(-90)), " cos -90")
 	pass
 
 func _process(_delta):
@@ -44,3 +42,7 @@ func _process(_delta):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
+
+
+func _on_CameraRing_debugSignal(text):
+	pass # Replace with function body.
