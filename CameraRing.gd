@@ -1,8 +1,12 @@
 extends Spatial
+
 # EXPLANAITIONS:
 # This camera is coded to work with diferents modes
 
+
 # ------------------------------ Start of Variables ------------------------------
+
+var math = load("res://src/main/math/utils.gd").new()
 
 var sensitivity = 0.1
 var zoom_speed = 5
@@ -16,7 +20,6 @@ var planetMinZoom = 0.20
 var planetZoomSpeed = 0.30
 var planetZoom = 5
 var planetMaxZoom = 40
-
 
 # --------------- planet coordinates vars ---------------
 
@@ -32,7 +35,18 @@ var cameraMode = "space"
 var currentMouseMananger:FuncRef
 var currentMovementMananger:FuncRef
 
+# --------------- signals declarations ---------------
+
 signal debugSignal(text)
+
+# --------------- debug vars ---------------
+
+
+## those vars are the points clicked on the planet
+var actualPoint:Vector3 = Vector3(0,0,0)
+
+var previusPoint:Vector3 = Vector3(0,0,0)
+
 
 # ------------------------------ Start of Functions ------------------------------
 # 1  Planet Functions:
@@ -49,6 +63,7 @@ func mouseManangerPlanet(event):
 		planetZoom = clamp(planetZoom + planetZoomSpeed, planetMinZoom, planetMaxZoom)
 	elif event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_DOWN:
 		planetZoom = clamp(planetZoom - planetZoomSpeed, planetMinZoom, planetMaxZoom)
+	
 
 
 func movementManangerPlanet(delta):
@@ -66,21 +81,26 @@ func movementManangerPlanet(delta):
 		amplitude += 1
 	if Input.is_action_pressed("move_right"):
 		amplitude -= 1
+
+	# make a var that acelerates the amplitude change in the poles
 	
 	altitude = altitude * delta * planetMovmentSpeed
-	amplitude = amplitude * delta * planetMovmentSpeed
-	
-	# make a var that acelerates the amplitude change in the poles
-	var amplitudeAceleration = sin(al)
-
 	al = clamp(altitude + al, -89, 89 )
+	
+
+	# do we need this aceleration for the poles becouse in the poles the camera gose slower than in the center and to mainten that aceleration constan trow all the planet we added the aceleration amplitde
+	var amplitudeAceleration = abs(sin(deg2rad(al))) + 1
+	
+	amplitude = amplitude * delta * planetMovmentSpeed * amplitudeAceleration
 	am += amplitude 
-
+	
+	
+	
 	self.rotation_degrees = Vector3(-al,-am+90,0)
-
+	
 	# the "planetPosition" vector shuld be the the position of the camera in relation of the planet center (0,0,0)
 	var planetPosition = Vector3()
-
+	
 	planetPosition.y = sin(deg2rad(al))
 	planetPosition.z = sin(deg2rad(am)) * cos(deg2rad(al))
 	planetPosition.x = cos(deg2rad(am)) * cos(deg2rad(al))
@@ -94,14 +114,28 @@ func movementManangerPlanet(delta):
 	var text2 = str(sin(deg2rad(am))) + " -sin(am)" + "\n" + str(cos(deg2rad(al))," -cos(al)") + str(cos(deg2rad(am))," -cos(am)")
 	var text3 = str("\n", planetPosition.y," -y,\n ",planetPosition.z," -z\n",planetPosition.x," -x")
 	var text4 = str("\nDISTANCE: ",planetCenter.distance_to(finalPosition))
-	emit_signal("debugSignal",text1+text2+text3+text4)
-
-
+	var test6 = str("\n", amplitudeAceleration, " - amplitudAceleration ")
+	emit_signal("debugSignal",text1+text2+text3+text4+test6)
+	
+	
 	self.global_translation = finalPosition
-
+	
 
 # --------------- 2 Space Functions ---------------
 func mouseManangerSpace(event):
+
+	if event is InputEventMouseButton:
+
+		# this pice of code makes whan you click it puts the mouse at the center of the screen
+		# to acctualy makes the click viable while in mouse mode captured 
+		if event.button_index == BUTTON_LEFT:
+			if event.pressed:
+				var windowCenter = OS.get_window_safe_area().get_center()
+				get_viewport().warp_mouse(windowCenter)
+				Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
+			else:
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
 	if event is InputEventMouseMotion:
 		var rot = self.rotation_degrees
 		rot.x -= event.relative.y * sensitivity
@@ -165,8 +199,18 @@ func _process(delta):
 
 
 
-func _on_Planet_planet_selected(childNode):
-	print("hola")
-	changeToPlanetMode(childNode.radius,childNode.global_translation )
+func _on_Planet_planet_selected(planetNode):
+	changeToPlanetMode(planetNode.radius,planetNode.global_translation)
 
+	pass # Replace with function body.
+
+
+func _on_UI_goToPlanetButton():
+	
+
+	changeToSpaceMode()
+	self.global_transform.origin = planetCenter
+	var postition = self.get_parent().actualPosition
+	var lastPositonCoord = math.localPositionToCoordinates(postition, planetRadius)
+	self.global_transform.basis = Vector3(lastPositonCoord.y,lastPositonCoord.x,0)
 	pass # Replace with function body.

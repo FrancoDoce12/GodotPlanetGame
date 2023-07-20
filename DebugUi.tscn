@@ -9,6 +9,22 @@ script = ExtResource( 1 )
 margin_left = 613.0
 margin_top = 377.0
 margin_right = 980.0
-margin_bottom = 551.0
+margin_bottom = 567.0
 readonly = true
 syntax_highlighting = true
+
+[node name="DebugClick" type="Label" parent="."]
+margin_left = 65.0
+margin_top = 36.0
+margin_right = 404.0
+margin_bottom = 114.0
+autowrap = true
+
+[node name="GoToPlanetCenter" type="Button" parent="."]
+margin_left = 817.0
+margin_top = 27.0
+margin_right = 984.0
+margin_bottom = 90.0
+text = "Go To Planet Center"
+
+[connection signal="pressed" from="GoToPlanetCenter" to="." method="_on_GoToPlanetCenter_pressed"]

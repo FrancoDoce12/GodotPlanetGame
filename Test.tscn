@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://Test.gd" type="Script" id=1]
 [ext_resource path="res://CameraRing.gd" type="Script" id=2]
@@ -7,6 +7,11 @@
 [ext_resource path="res://Planet.tscn" type="PackedScene" id=5]
 [ext_resource path="res://data/data/3dFiles/uploads_files_980447_Low+Poly+Pawn.obj" type="ArrayMesh" id=6]
 [ext_resource path="res://data/data/3dFiles/uploads_files_982402_Low+Poly+Rook.obj" type="ArrayMesh" id=7]
+[ext_resource path="res://uploads_files_982402_Low+Poly+Rook.gd" type="Script" id=8]
+[ext_resource path="res://uploads_files_982402_Low+Poly+Rook2.gd" type="Script" id=9]
+
+[sub_resource type="SpatialMaterial" id=7]
+albedo_color = Color( 1, 0, 0, 1 )
 
 [sub_resource type="CylinderMesh" id=1]
 
@@ -22,6 +27,9 @@ albedo_color = Color( 1, 0, 0, 1 )
 
 [sub_resource type="SpatialMaterial" id=6]
 albedo_color = Color( 0.054902, 1, 0, 1 )
+
+[sub_resource type="SpatialMaterial" id=8]
+albedo_color = Color( 0, 0.0862745, 1, 1 )
 
 [node name="Test" type="Spatial"]
 script = ExtResource( 1 )
@@ -39,8 +47,10 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.46811, 0, 20.8561 )
 script = ExtResource( 4 )
 
 [node name="uploads_files_982402_Low+Poly+Rook" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -12.7753, 13.1624, 3.56757 )
+transform = Transform( -0.000479955, 0.0499977, 0, -0.0499977, -0.000479955, 0, 0, 0, 0.05, 4.73273, 1.78904, -6.29799 )
 mesh = ExtResource( 7 )
+material/0 = SubResource( 7 )
+script = ExtResource( 8 )
 
 [node name="uploads_files_980447_Low+Poly+Pawn" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14.466, 5.22492, 17.0991 )
@@ -65,5 +75,16 @@ material/0 = SubResource( 6 )
 
 [node name="UI" parent="." instance=ExtResource( 3 )]
 
+[node name="uploads_files_982402_Low+Poly+Rook2" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 32.8333, -13.2128, 20.5585 )
+mesh = ExtResource( 7 )
+skeleton = NodePath("../Planet")
+material/0 = SubResource( 8 )
+script = ExtResource( 9 )
+
 [connection signal="debugSignal" from="CameraRing" to="UI" method="_on_CameraRing_debugSignal"]
+[connection signal="followBlueRook" from="uploads_files_982402_Low+Poly+Rook" to="uploads_files_982402_Low+Poly+Rook2" method="_on_uploads_files_982402_LowPolyRook_followBlueRook"]
+[connection signal="debug_click" from="Planet" to="UI" method="_on_Planet_debug_click"]
 [connection signal="planet_selected" from="Planet" to="CameraRing" method="_on_Planet_planet_selected"]
+[connection signal="put_object" from="Planet" to="uploads_files_982402_Low+Poly+Rook" method="_on_Planet_put_object"]
+[connection signal="goToPlanetButton" from="UI" to="CameraRing" method="_on_UI_goToPlanetButton"]

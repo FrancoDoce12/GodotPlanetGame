@@ -1,23 +1,29 @@
 extends Spatial
 
-
+var math = load("res://src/main/math/utils.gd").new()
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
 
+# ---------------- global vars ----------------
+var actualPosition:Vector3 = Vector3(0,0,0)
+var previusPosition:Vector3 = Vector3(0,0,0)
+
+
+
+func lastPosition (position:Vector3):
+	actualPosition = previusPosition
+	previusPosition = position
 
 
 func _input(event):
 	if event is InputEventKey and event.scancode == KEY_ESCAPE:
 		get_tree().quit()
-	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_LEFT:
-			if event.pressed:
-				var windowCenter = OS.get_window_safe_area().get_center()
-				get_viewport().warp_mouse(windowCenter)
-				Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
-			else:
-				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	
+	
+
+	
+	
 
 func mauseModeCenter():
 	pass
@@ -26,12 +32,10 @@ func mouseModeClick():
 	pass
 
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
-	print(cos(deg2rad(230)), " cos 230")
-	print(cos(deg2rad(-90)), " cos -90")
 	pass
 
 func _process(_delta):

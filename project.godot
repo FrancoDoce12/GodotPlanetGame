@@ -34,6 +34,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/campaing_map_clases/ents/Ent.gd"
 }, {
+"base": "Spatial",
+"class": "GeoLocation",
+"language": "GDScript",
+"path": "res://src/space_objects/planetaryElements/GeoLocation.gd"
+}, {
 "base": "Thinking_Ent",
 "class": "Person",
 "language": "GDScript",
@@ -43,6 +48,16 @@ _global_script_classes=[ {
 "class": "Personality",
 "language": "GDScript",
 "path": "res://src/campaing_map_clases/peopole/Personality.gd"
+}, {
+"base": "MeshInstance",
+"class": "Planet",
+"language": "GDScript",
+"path": "res://src/space_objects/planet.gd"
+}, {
+"base": "GeoLocation",
+"class": "PlanetaryElement",
+"language": "GDScript",
+"path": "res://src/space_objects/planetaryElements/planetaryElement.gd"
 }, {
 "base": "Reference",
 "class": "SQLiteWrapper",
@@ -65,8 +80,11 @@ _global_script_class_icons={
 "Domain": "",
 "Emotions": "",
 "Ent": "",
+"GeoLocation": "",
 "Person": "",
 "Personality": "",
+"Planet": "",
+"PlanetaryElement": "",
 "SQLiteWrapper": "",
 "Settlement": "",
 "Thinking_Ent": ""
@@ -77,6 +95,10 @@ _global_script_class_icons={
 config/name="Prueba_3d_3"
 run/main_scene="res://Test.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+math="*res://src/main/math/utils.gd"
 
 [gui]
 
