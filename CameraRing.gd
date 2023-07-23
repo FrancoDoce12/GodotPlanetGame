@@ -59,9 +59,6 @@ var previusPoint:Vector3 = Vector3(0,0,0)
 # --------------- 1) The Planet Functions ---------------
 func mouseManangerPlanet(event):
 
-	if event.is_action_pressed("aceletare_movment"):
-		planetIsAcelerating = !planetIsAcelerating
-		planetMovmentSpeed = 10 + (20 * planetIsAcelerating)
 
 	Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
 
@@ -77,8 +74,9 @@ func movementManangerPlanet(delta):
 	# The movment in the planet is all manange by the coordinates angles of the planet the movment of the camera
 	# its the movment of their coordinates and then calculate the exact point using trigonometry of the vector 3d of the camera
 
-	if event.is_action_just_pressed("aceletare_movment"):
-
+	if Input.is_action_pressed("aceletare_movment"):
+		planetIsAcelerating = !planetIsAcelerating
+		planetMovmentSpeed = 10 + (20 * planetIsAcelerating)
 
 
 
