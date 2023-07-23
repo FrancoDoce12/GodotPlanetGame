@@ -20,6 +20,7 @@ var planetMinZoom = 0.20
 var planetZoomSpeed = 0.30
 var planetZoom = 5
 var planetMaxZoom = 40
+var planetIsAcelerating = false
 
 # --------------- planet coordinates vars ---------------
 
@@ -55,8 +56,13 @@ var previusPoint:Vector3 = Vector3(0,0,0)
 # 4  godot build in functions:
 
 
-# --------------- 1 Planet Functions ---------------
+# --------------- 1) The Planet Functions ---------------
 func mouseManangerPlanet(event):
+
+	if event.is_action_pressed("aceletare_movment"):
+		planetIsAcelerating = !planetIsAcelerating
+		planetMovmentSpeed = 10 + (20 * planetIsAcelerating)
+
 	Input.set_mouse_mode(Input.MOUSE_MODE_CONFINED)
 
 	if event is InputEventMouseButton and event.button_index == BUTTON_WHEEL_UP:
@@ -70,6 +76,11 @@ func movementManangerPlanet(delta):
 	# EXPLANAITION, 
 	# The movment in the planet is all manange by the coordinates angles of the planet the movment of the camera
 	# its the movment of their coordinates and then calculate the exact point using trigonometry of the vector 3d of the camera
+
+	if event.is_action_just_pressed("aceletare_movment"):
+
+
+
 
 	var altitude:float = 0.0
 	var amplitude:float = 0.0
@@ -125,7 +136,6 @@ func movementManangerPlanet(delta):
 func mouseManangerSpace(event):
 
 	if event is InputEventMouseButton:
-
 		# this pice of code makes whan you click it puts the mouse at the center of the screen
 		# to acctualy makes the click viable while in mouse mode captured 
 		if event.button_index == BUTTON_LEFT:
