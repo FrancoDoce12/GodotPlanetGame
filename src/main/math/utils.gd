@@ -5,13 +5,15 @@ var HALF_PI:float = 1.5707963267949
 ## returns the local position in base of the coordinates without the radius and terrain
 func planetCoordinatesToLocal3DPosition(coordinates:Vector2) -> Vector3:
 
-	var localPosition = Vector3(0,0,0)
+	# var localPosition = Vector3(0,0,0)
 
-	localPosition.y = sin(deg2rad(coordinates.y))
-	localPosition.z = sin(deg2rad(coordinates.x)) * cos(deg2rad(coordinates.y))
-	localPosition.x = cos(deg2rad(coordinates.x)) * cos(deg2rad(coordinates.y))
+	var yCos = cos(deg2rad(coordinates.y))
 
-	return localPosition
+	# localPosition.y = sin(deg2rad(coordinates.y))
+	# localPosition.z = sin(deg2rad(coordinates.x)) * yCos
+	# localPosition.x = cos(deg2rad(coordinates.x)) * yCos
+
+	return Vector3(cos(deg2rad(coordinates.x)) * yCos, sin(deg2rad(coordinates.y)), sin(deg2rad(coordinates.x)) * yCos)
 
 
 
@@ -36,12 +38,26 @@ func localPositionToCoordinates(localPosition:Vector3,planetRadius:int) -> Vecto
 	return Vector2(amplitudeDegree, altitudeDegree)
 
 
+# a new function using the normalisation and being more perfomrant
+
+func localPositionToCoordinates2(localPosition:Vector3) -> Vector2:
+
+	localPosition = localPosition.normalized()
+
+	var altitudeDegree = rad2deg(asin(localPosition.y)) 
+
+	var a = (cos(deg2rad(altitudeDegree)) + 1 ) * 90
+
+	var amplitudeDegree = rad2deg(atan2((localPosition.z * a),(localPosition.x * a)))
+
+	return Vector2(amplitudeDegree, altitudeDegree)
+	
 
 
 
 
-func globalPositionToCoordinates(globalPosition:Vector3,planetRadius:int, planetCenterPosition:Vector3) -> Vector2:
-	return localPositionToCoordinates((globalPosition - planetCenterPosition),planetRadius)
+func globalPositionToCoordinates(globalPosition:Vector3, planetCenterPosition:Vector3) -> Vector2:
+	return localPositionToCoordinates2((globalPosition - planetCenterPosition))
 
 
 
@@ -157,6 +173,15 @@ func getFullDistance(coordinateA:Vector2,coordinateB:Vector2, cosTable:Dictionar
 	
 	return getDistance(amplitudeDiference, altitudeDiference, cosAverage)
 
+func getGeoDesicDistance(coordinateA:Vector2,coordinateB:Vector2):	
+	# stolen implementation from:https://code.activestate.com/recipes/576779-calculating-distance-between-two-geographic-points/
+
+	var d_alt = coordinateB.y - coordinateA.y
+	var d_amp = coordinateB.x - coordinateA.x
+	var a = pow(sin(d_alt/2),2) + cos(coordinateA.y) * cos(coordinateB.y) * pow(sin(d_amp/2),2)
+	# var c = 2 * atan2(sqrt(a), sqrt(1-a))
+	return 2 * atan2(sqrt(a), sqrt(1-a))
+	
 
 
 # Called when the node enters the scene tree for the first time.
