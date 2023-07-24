@@ -15,12 +15,12 @@ var max_zoom = 10
 var movement_speed = 5
 # --------------- planet camera vars ---------------
 var planetCenter = Vector3(0,0,0)
-var planetMovmentSpeed = 10
+var planetIsAcelerating = false
+var planetMovmentSpeed = 10 
 var planetMinZoom = 0.20
 var planetZoomSpeed = 0.30
 var planetZoom = 5
 var planetMaxZoom = 40
-var planetIsAcelerating = false
 
 # --------------- planet coordinates vars ---------------
 
@@ -74,10 +74,11 @@ func movementManangerPlanet(delta):
 	# The movment in the planet is all manange by the coordinates angles of the planet the movment of the camera
 	# its the movment of their coordinates and then calculate the exact point using trigonometry of the vector 3d of the camera
 
-	if Input.is_action_pressed("aceletare_movment"):
+	if Input.is_action_just_pressed("aceletare_movment"):
 		planetIsAcelerating = !planetIsAcelerating
-		planetMovmentSpeed = 10 + (20 * planetIsAcelerating)
-
+		planetMovmentSpeed = 10 + (20 * int(planetIsAcelerating))
+	# if Input.is_action_just_released("aceletare_movment"):
+	# 	planetIsAcelerating = false
 
 
 	var altitude:float = 0.0
