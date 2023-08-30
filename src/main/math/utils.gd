@@ -2,18 +2,79 @@ extends Node
 
 var HALF_PI:float = 1.5707963267949
 
+func normalizeAngles(angle:float):
+	# var full_circles = angle / 360
+	# full_circles = floor(full_circles)
+	# var normalizedAngle = angle - full_circles * 360
+	return angle - (floor(angle / 360) * 360)
+
+func normaliseNegativeAngles(angle:float):
+	# can be made more performant CBMMP
+	if angle < 0 :
+		angle = 180 + (180 + angle )
+	return angle
+
+
+func calculate_angle_distance(angleA:float, angleB:float):
+	angleA = normalizeAngles(angleA)
+	angleB = normalizeAngles(angleB)
+
+	return (min(abs(angleA - angleB), abs(normalizeAngles(angleA + 180) - normalizeAngles(angleB + 180))))
+	
+
+
+
+func create_random_list(seed_:int,n:int,b:int = 0) -> Array:
+	var rgn = RandomNumberGenerator.new()
+	rgn.seed = seed_
+
+	var random_list = range(b,n + 1)
+
+	for i in range(n, 0, -1): 
+		var j = rgn.randi() % i  
+		var temp = random_list[i - 1] 
+		random_list[i - 1] = random_list[j]  
+		random_list[j] = temp
+
+	return random_list
+func create_random_list_rg(rgn:RandomNumberGenerator,n:int,b:int = 0) -> Array:
+
+	var random_list = range(b,n + 1)
+
+	for i in range(n, 0, -1): 
+		var j = rgn.randi() % i  
+		var temp = random_list[i - 1] 
+		random_list[i - 1] = random_list[j]  
+		random_list[j] = temp
+
+	return random_list
+
+
+func createPermTable(seed_:int, size:int):
+	var rgn = RandomNumberGenerator.new()
+	rgn.seed = seed_
+
+	rgn.randi_range(0,size)
+
+	var a = range(size)
+	
+
+	
+
+
 ## returns the local position in base of the coordinates without the radius and terrain
 func planetCoordinatesToLocal3DPosition(coordinates:Vector2) -> Vector3:
 
-	# var localPosition = Vector3(0,0,0)
+	coordinates.x = deg2rad(coordinates.x)
+	coordinates.y = deg2rad(coordinates.y)
 
-	var yCos = cos(deg2rad(coordinates.y))
+	var yCos = cos(coordinates.y)
 
 	# localPosition.y = sin(deg2rad(coordinates.y))
 	# localPosition.z = sin(deg2rad(coordinates.x)) * yCos
 	# localPosition.x = cos(deg2rad(coordinates.x)) * yCos
 
-	return Vector3(cos(deg2rad(coordinates.x)) * yCos, sin(deg2rad(coordinates.y)), sin(deg2rad(coordinates.x)) * yCos)
+	return Vector3(cos(coordinates.x) * yCos, sin(coordinates.y), sin(coordinates.x) * yCos)
 
 
 
@@ -27,7 +88,7 @@ func planetCoordinatesToGlobal3DPosition(coordinates:Vector2,planetCenter:Vector
 
 
 ## THE localPosition whuld be without the terrain value 
-func localPositionToCoordinates(localPosition:Vector3,planetRadius:int) -> Vector2:
+func localPositionToCoordinates(localPosition:Vector3, planetRadius:int) -> Vector2:
 
 	var y = (localPosition.y / planetRadius)
 	var altitudeDegree =  rad2deg(asin(y)) 
@@ -38,26 +99,21 @@ func localPositionToCoordinates(localPosition:Vector3,planetRadius:int) -> Vecto
 	return Vector2(amplitudeDegree, altitudeDegree)
 
 
-# a new function using the normalisation and being more perfomrant
+func experimental(localPosition:Vector3):
+	pass
 
-func localPositionToCoordinates2(localPosition:Vector3) -> Vector2:
-
-	localPosition = localPosition.normalized()
-
-	var altitudeDegree = rad2deg(asin(localPosition.y)) 
-
-	var a = (cos(deg2rad(altitudeDegree)) + 1 ) * 90
-
-	var amplitudeDegree = rad2deg(atan2((localPosition.z * a),(localPosition.x * a)))
-
-	return Vector2(amplitudeDegree, altitudeDegree)
-	
+func localPositionToCoordinates2(localPosition:Vector3, planetRadius:float) -> Vector2:
+	var altitude = asin(localPosition.y / planetRadius)
+	var a = cos(altitude) + 1
+	return Vector2(rad2deg(atan2(localPosition.z * a, localPosition.x * a)), rad2deg(altitude))
 
 
 
 
-func globalPositionToCoordinates(globalPosition:Vector3, planetCenterPosition:Vector3) -> Vector2:
-	return localPositionToCoordinates2((globalPosition - planetCenterPosition))
+
+
+func globalPositionToCoordinates(globalPosition:Vector3, planetCenterPosition:Vector3,planetRadius) -> Vector2:
+	return localPositionToCoordinates2((globalPosition - planetCenterPosition), planetRadius)
 
 
 
